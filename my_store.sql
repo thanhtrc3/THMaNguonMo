@@ -14,6 +14,30 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+-- Dumping structure for table my_store.account
+CREATE TABLE IF NOT EXISTS `account` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  `fullname` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('admin','user') DEFAULT 'user',
+  `phone` varchar(20) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `address` text,
+  `remember_token` varchar(255) DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_token_expire` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
+
+-- Dumping data for table my_store.account: ~4 rows (approximately)
+INSERT INTO `account` (`id`, `username`, `fullname`, `password`, `role`, `phone`, `email`, `address`, `remember_token`, `reset_token`, `reset_token_expire`) VALUES
+	(1, 'admin', 'admin', '$2y$10$4OxbdDUDFjtbbXHmZ13sZeG680EGjenh.QA//KvhVCEVdVTUsrKsi', 'admin', '0962836417', 'thanhtrc3@gmail.com', '{"province":"Tỉnh Hà Nam","district":"Huyện Kim Bảng","ward":"Xã Tượng Lĩnh","address_detail":"255"}', NULL, NULL, NULL),
+	(2, 'user', 'user', '$2y$10$lIZo9w9omRaMHf0k55I0y.RqDDVZsO8RmflOsGCBJWb/wXebm18Oq', 'user', '0962836417', 'thanhtrc3@gmail.com', '{"province":"Tỉnh Hà Nam","district":"Huyện Bình Lục","ward":"Xã Đồn Xá","address_detail":"136"}', NULL, 'fa2a19037abbffa82a083efcba9647c8', '2026-06-05 10:34:53'),
+	(3, 'thanhhien', 'thanh hien', '$2y$10$/SxL9hiNO1/Y8KYsnvUTRuPSZwkGAesMSVYUvQoY.dmPHBMDiOJ66', 'user', '', '', '', NULL, NULL, NULL),
+	(4, 'asdf', 'dd', '$2y$10$Z/bmW32gLDSnCcvCEEty6eps6vVj2TGySgUrpLB2FBgHGwdLMN5rW', 'user', '0962836417', 'thanhtrc3@gmail.com', '', NULL, 'fa2a19037abbffa82a083efcba9647c8', '2026-06-05 10:34:53');
+
 -- Dumping structure for table my_store.category
 CREATE TABLE IF NOT EXISTS `category` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -50,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `discount_amount` int NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table my_store.orders: ~13 rows (approximately)
 INSERT INTO `orders` (`id`, `name`, `phone`, `email`, `address`, `notes`, `total_amount`, `payment_method`, `status`, `shipping_method`, `shipping_fee`, `discount_code`, `discount_amount`, `created_at`) VALUES
@@ -66,7 +90,11 @@ INSERT INTO `orders` (`id`, `name`, `phone`, `email`, `address`, `notes`, `total
 	(10, 'nguyen thanh hien', '0962836417', NULL, '423', NULL, 29990000.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-29 03:30:08'),
 	(11, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', '312', 60015000.00, 'BANK', 'pending', 'express', 35000, '', 0, '2026-05-29 03:36:06'),
 	(12, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', 'ádádas', 35025000.00, 'BANK', 'pending', 'express', 35000, '', 0, '2026-05-29 03:41:19'),
-	(13, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', '', 34975000.00, 'BANK', 'pending', 'express', 35000, 'SALE50K', 50000, '2026-05-29 03:42:04');
+	(13, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', '', 34975000.00, 'BANK', 'pending', 'express', 35000, 'SALE50K', 50000, '2026-05-29 03:42:04'),
+	(14, 'user', '0962836417', 'thanhtrc3@gmail.com', '136, Xã Tượng Lĩnh, Huyện Kim Bảng, Tỉnh Hà Nam', 'ád', 29975000.00, 'BANK', 'pending', 'express', 35000, 'SALE50K', 50000, '2026-06-05 01:58:32'),
+	(15, 'user', '0962836417', 'thanhtrc3@gmail.com', '136, Xã Tượng Lĩnh, Huyện Kim Bảng, Tỉnh Hà Nam', 'fdg', 80036600.00, 'BANK', 'pending', 'express', 35000, '', 0, '2026-06-05 01:59:20'),
+	(16, 'admin', '0962836417', 'thanhtrc3@gmail.com', '255, Xã Tượng Lĩnh, Huyện Kim Bảng, Tỉnh Hà Nam', '', 1635032.00, 'COD', 'pending', 'express', 35000, '', 0, '2026-06-05 02:02:33'),
+	(17, 'user', '0962836417', 'thanhtrc3@gmail.com', '136, Xã Đồn Xá, Huyện Bình Lục, Tỉnh Hà Nam', '', 29990000.00, 'COD', 'pending', 'standard', 0, '', 0, '2026-06-05 02:17:58');
 
 -- Dumping structure for table my_store.order_details
 CREATE TABLE IF NOT EXISTS `order_details` (
@@ -80,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `order_details` (
   KEY `product_id` (`product_id`),
   CONSTRAINT `order_details_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
   CONSTRAINT `order_details_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table my_store.order_details: ~30 rows (approximately)
 INSERT INTO `order_details` (`id`, `order_id`, `product_id`, `quantity`, `price`) VALUES
@@ -113,7 +141,11 @@ INSERT INTO `order_details` (`id`, `order_id`, `product_id`, `quantity`, `price`
 	(27, 10, 1, 1, 29990000.00),
 	(28, 11, 1, 2, 29990000.00),
 	(29, 12, 3, 1, 34990000.00),
-	(30, 13, 3, 1, 34990000.00);
+	(30, 13, 3, 1, 34990000.00),
+	(31, 14, 1, 1, 29990000.00),
+	(32, 15, 2, 50, 1600032.00),
+	(33, 16, 2, 1, 1600032.00),
+	(34, 17, 1, 1, 29990000.00);
 
 -- Dumping structure for table my_store.product
 CREATE TABLE IF NOT EXISTS `product` (
@@ -128,10 +160,10 @@ CREATE TABLE IF NOT EXISTS `product` (
   CONSTRAINT `product_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table my_store.product: ~16 rows (approximately)
+-- Dumping data for table my_store.product: ~0 rows (approximately)
 INSERT INTO `product` (`id`, `name`, `description`, `price`, `image`, `category_id`) VALUES
-	(1, 'iPhone 15 Pro Max 256GB', 'cái gì đó\r\n', 29990000.00, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTMF0XJkdooDLxG1PH5w2AttiJwud0CyKlEUycuZ89pHNFmxTFkl5vwM6hbzoRJ6HDZPGS9kvwcOIyRFHrpIddqdDyMEVQcq0oHLivAuLc7m9ItK_ixYEduTPIv7to7mKGEy7cpdQ&amp;amp;amp;usqp=CAc', 1),
-	(2, 'iPad Air M2 11-inch Wi-Fi', 'iPad Air M2 11-inch Wi-Fi', 1600032.00, 'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture//Apro/Apro_product_36223/ipad-air-m3-11-inch-wifi-128gb-main-36223.png', 1),
+	(1, 'iPhone 15 Pro Max 256GBgg', 'cái gì đó\r\ng', 29990000.00, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTMF0XJkdooDLxG1PH5w2AttiJwud0CyKlEUycuZ89pHNFmxTFkl5vwM6hbzoRJ6HDZPGS9kvwcOIyRFHrpIddqdDyMEVQcq0oHLivAuLc7m9ItK_ixYEduTPIv7to7mKGEy7cpdQ&amp;amp;amp;amp;amp;usqp=CAc', 1),
+	(2, 'iPad Air M2 11-inch Wi-Fi', 'iPad Air M2 11-inch Wi-Fi', 16000320.00, 'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture//Apro/Apro_product_36223/ipad-air-m3-11-inch-wifi-128gb-main-36223.png', 1),
 	(3, 'Laptop Gaming ASUS ROG Strix G16', '', 34990000.00, 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/t/e/text_ng_n_1__1_96_1_1_1_1.png', 2),
 	(4, 'MacBook Air M3 13-inch 8GB/256GB', '', 27490000.00, 'uploads/1780023309_Capture.PNG', 2),
 	(5, 'Card màn hình ASUS Dual RTX 4060 Ti', '', 11500000.00, NULL, 3),
