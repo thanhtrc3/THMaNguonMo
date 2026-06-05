@@ -145,6 +145,8 @@
 
                     <!-- Hidden field to store full concatenated address -->
                     <input type="hidden" id="full_address" name="address" value="">
+                    <!-- Hidden field to store JSON address for DB -->
+                    <input type="hidden" id="address_json" name="address_json" value="">
                     
                     <label class="check-wrap">
                         <input type="checkbox" id="save_info">
@@ -466,9 +468,32 @@
     }
 
     function loadSavedInfo() {
-        const saved = localStorage.getItem('checkout_info');
-        if(saved) {
-            const data = JSON.parse(saved);
+        let data = null;
+        
+        // Load from DB if logged in
+        <?php if (isset($accountInfo) && !empty($accountInfo)): ?>
+            data = {};
+            <?php if (!empty($accountInfo->fullname)): ?>data.name = <?php echo json_encode($accountInfo->fullname); ?>;<?php endif; ?>
+            <?php if (!empty($accountInfo->phone)): ?>data.phone = <?php echo json_encode($accountInfo->phone); ?>;<?php endif; ?>
+            <?php if (!empty($accountInfo->email)): ?>data.email = <?php echo json_encode($accountInfo->email); ?>;<?php endif; ?>
+            
+            <?php if (!empty($accountInfo->address)): ?>
+                try {
+                    const dbAddress = JSON.parse(<?php echo json_encode($accountInfo->address); ?>);
+                    data.province = dbAddress.province;
+                    data.district = dbAddress.district;
+                    data.ward = dbAddress.ward;
+                    data.address_detail = dbAddress.address_detail;
+                } catch(e) {}
+            <?php endif; ?>
+        <?php endif; ?>
+
+        if (!data) {
+            const saved = localStorage.getItem('checkout_info');
+            if(saved) data = JSON.parse(saved);
+        }
+
+        if(data) {
             document.getElementById('save_info').checked = true;
             if(data.name) document.getElementById('name').value = data.name;
             if(data.phone) { document.getElementById('phone').value = data.phone; document.getElementById('phone').dispatchEvent(new Event('input')); }
@@ -522,6 +547,14 @@
         const p = document.getElementById('province').value;
         
         document.getElementById('full_address').value = `${detail}, ${w}, ${d}, ${p}`;
+        
+        const addressData = {
+            province: p,
+            district: d,
+            ward: w,
+            address_detail: detail
+        };
+        document.getElementById('address_json').value = JSON.stringify(addressData);
         
         saveInfo();
     });

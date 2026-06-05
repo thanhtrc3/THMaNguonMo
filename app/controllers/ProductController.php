@@ -3,6 +3,7 @@
 require_once('app/config/database.php');
 require_once('app/models/ProductModel.php');
 require_once('app/models/CategoryModel.php');
+require_once('app/helpers/SessionHelper.php');
 
 class ProductController
 {
@@ -23,6 +24,10 @@ class ProductController
         if (!is_dir($this->uploadDir)) {
             mkdir($this->uploadDir, 0777, true);
         }
+    }
+
+    private function isAdmin() {
+        return SessionHelper::isAdmin();
     }
 
     private function uploadImage($file)
@@ -138,12 +143,20 @@ class ProductController
 
     public function add()
     {
+        if (!$this->isAdmin()) {
+            echo "Bạn không có quyền truy cập chức năng này!";
+            exit;
+        }
         $categories = (new CategoryModel($this->db))->getCategories();
         include_once 'app/views/product/add.php';
     }
 
     public function save()
     {
+        if (!$this->isAdmin()) {
+            echo "Bạn không có quyền truy cập chức năng này!";
+            exit;
+        }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['name'] ?? '';
             $description = $_POST['description'] ?? '';
@@ -217,6 +230,10 @@ class ProductController
 
     public function edit($id)
     {
+        if (!$this->isAdmin()) {
+            echo "Bạn không có quyền truy cập chức năng này!";
+            exit;
+        }
         $product = $this->productModel->getProductById($id);
         $categories = (new CategoryModel($this->db))->getCategories();
         if ($product) {
@@ -228,6 +245,10 @@ class ProductController
 
     public function update()
     {
+        if (!$this->isAdmin()) {
+            echo "Bạn không có quyền truy cập chức năng này!";
+            exit;
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'] ?? '';
             $name = $_POST['name'] ?? '';
@@ -305,6 +326,10 @@ class ProductController
 
     public function delete($id)
     {
+        if (!$this->isAdmin()) {
+            echo "Bạn không có quyền truy cập chức năng này!";
+            exit;
+        }
         if ($this->productModel->deleteProduct($id)) {
             header('Location: ' . BASE_URL . '/Product/manage');
             exit();
@@ -427,6 +452,20 @@ class ProductController
             header('Location: ' . BASE_URL . '/Product/cart');
             exit();
         }
+
+        // Bắt buộc đăng nhập trước khi thanh toán
+        if (!SessionHelper::isLoggedIn()) {
+            header('Location: ' . BASE_URL . '/account/login');
+            exit();
+        }
+
+        $accountInfo = null;
+        if (SessionHelper::isLoggedIn()) {
+            require_once('app/models/AccountModel.php');
+            $accountModel = new AccountModel($this->db);
+            $accountInfo = $accountModel->getAccountByUsername($_SESSION['username']);
+        }
+
         include 'app/views/product/checkout.php';
     }
 
@@ -437,7 +476,15 @@ class ProductController
             $phone = $_POST['phone'] ?? '';
             $email = $_POST['email'] ?? '';
             $address = $_POST['address'] ?? ''; // This is now the concatenated full string
+            $addressJson = $_POST['address_json'] ?? ''; // JSON containing province, district, ward, detail
             $notes = $_POST['notes'] ?? '';
+
+            // Cập nhật thông tin vào DB nếu đã đăng nhập
+            if (SessionHelper::isLoggedIn()) {
+                require_once('app/models/AccountModel.php');
+                $accountModel = new AccountModel($this->db);
+                $accountModel->updateProfile($_SESSION['username'], $name, $phone, $email, $addressJson);
+            }
             
             $payment_method = $_POST['payment_method'] ?? 'COD';
             $shipping_method = $_POST['shipping_method'] ?? 'standard';

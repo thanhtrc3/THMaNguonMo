@@ -184,6 +184,10 @@
                         <div class="card-footer">
                             <span class="card-price"><?php echo number_format($p->getPrice(), 0, '.', ','); ?> VNĐ</span>
                             <div class="card-actions">
+                                <?php if (SessionHelper::isAdmin()): ?>
+                                    <a href="<?php echo BASE_URL; ?>/Product/edit/<?php echo $p->getID(); ?>" class="btn-cart-list" style="color:var(--accent); border-color:var(--accent)">Sửa</a>
+                                    <a href="<?php echo BASE_URL; ?>/Product/delete/<?php echo $p->getID(); ?>" class="btn-cart-list" style="color:var(--danger); border-color:var(--danger)" onclick="return confirm('Bạn có chắc muốn xóa?');">Xóa</a>
+                                <?php endif; ?>
                                 <a href="<?php echo BASE_URL; ?>/Product/addToCart/<?php echo $p->getID(); ?>" class="btn-cart-list">+ Giỏ hàng</a>
                             </div>
                         </div>
@@ -253,6 +257,10 @@
                             <td class="td-price"><?php echo number_format($p->getPrice(), 0, '.', ','); ?> VNĐ</td>
                             <td class="td-actions">
                                 <div class="action-row">
+                                    <?php if (SessionHelper::isAdmin()): ?>
+                                        <a href="<?php echo BASE_URL; ?>/Product/edit/<?php echo $p->getID(); ?>" class="btn-cart-list" style="color:var(--accent); border-color:var(--accent)">Sửa</a>
+                                        <a href="<?php echo BASE_URL; ?>/Product/delete/<?php echo $p->getID(); ?>" class="btn-cart-list" style="color:var(--danger); border-color:var(--danger)" onclick="return confirm('Bạn có chắc muốn xóa?');">Xóa</a>
+                                    <?php endif; ?>
                                     <a href="<?php echo BASE_URL; ?>/Product/addToCart/<?php echo $p->getID(); ?>" class="btn-cart-list">+ Giỏ hàng</a>
                                 </div>
                             </td>

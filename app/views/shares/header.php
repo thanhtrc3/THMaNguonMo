@@ -128,6 +128,7 @@
             
             <!-- Admin Dropdown Menu -->
             <ul class="navbar-nav">
+                <?php if (SessionHelper::isAdmin()): ?>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border: 1px solid var(--border); padding: 0.4rem 0.9rem; border-radius: 3px; background: rgba(37, 99, 235, 0.05); color: var(--accent) !important; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;">
                         QUẢN TRỊ
@@ -137,6 +138,27 @@
                         <a class="dropdown-item" href="<?php echo BASE_URL; ?>/Category/">Quản lý Danh mục</a>
                     </div>
                 </li>
+                <?php endif; ?>
+
+                <li class="nav-item">
+                <?php
+                if (SessionHelper::isLoggedIn()) {
+                    echo "<a class='nav-link' href='#' style='color: #fff !important; font-weight: 600;'>👋 " . htmlspecialchars($_SESSION['username']) . "</a>";
+                } else {
+                    echo "<a class='nav-link' href='" . BASE_URL . "/account/login'>Đăng nhập</a>";
+                }
+                ?>
+                </li>
+                
+                <?php if (SessionHelper::isLoggedIn()): ?>
+                <li class="nav-item">
+                    <a class='nav-link' href='<?php echo BASE_URL; ?>/account/logout' style="color: var(--danger) !important;">Đăng xuất</a>
+                </li>
+                <?php else: ?>
+                <li class="nav-item">
+                    <a class='nav-link' href='<?php echo BASE_URL; ?>/account/register' style="border: 1px solid var(--accent); padding: 0.3rem 0.8rem; border-radius: 4px; color: var(--accent) !important; margin-left: 10px;">Đăng ký</a>
+                </li>
+                <?php endif; ?>
             </ul>
         </div>
     </nav>
