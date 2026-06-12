@@ -1,5 +1,3 @@
-<?php /** @var ProductModel[] $products */ ?>
-<?php /** @var CategoryModel[] $categories */ ?>
 <?php include 'app/views/shares/header.php'; ?>
 
 <style>
@@ -46,7 +44,7 @@
     .card-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.6; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 1.25rem; }
     .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border2); }
     .card-price { font-family: var(--mono); font-size: 0.9rem; font-weight: 700; color: var(--teal); }
-    .card-actions { display: flex; gap: 0.4rem; }
+    .card-actions { display: flex; gap: 0.4rem; z-index: 10; position: relative; }
 
     .table-wrap { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; animation: fadeUp 0.4s 0.14s ease both; }
     .table-wrap.is-hidden { display: none; }
@@ -74,10 +72,10 @@
     .td-price { font-family: var(--mono); font-size: 0.82rem; color: var(--teal); font-weight: 700; white-space: nowrap; }
     .td-actions { text-align: center; } .action-row { display: flex; gap: 0.4rem; justify-content: center; }
 
-    .btn-cart-list { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.06em; color: var(--accent); background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.18); border-radius: 3px; padding: 0.32rem 0.7rem; text-decoration: none; transition: background 0.2s, border-color 0.2s, color 0.2s; white-space: nowrap; position: relative; z-index: 2; }
+    .btn-cart-list { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.06em; color: var(--accent); background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.18); border-radius: 3px; padding: 0.32rem 0.7rem; text-decoration: none; transition: background 0.2s, border-color 0.2s, color 0.2s; white-space: nowrap; position: relative; z-index: 2; cursor: pointer; }
     .btn-cart-list:hover { background: rgba(37,99,235,0.14); border-color: rgba(37,99,235,0.45); color: var(--accent); text-decoration: none; }
 
-    .empty-state { padding: 5rem 2rem; text-align: center; }
+    .empty-state { padding: 5rem 2rem; text-align: center; grid-column: 1/-1; }
     .empty-icon { font-family: var(--mono); font-size: 2rem; color: #2a2a2a; margin-bottom: 1.25rem; }
     .empty-title { font-size: 1.1rem; font-weight: 700; color: #3a3a3a; margin-bottom: 0.4rem; }
     .empty-sub { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
@@ -87,37 +85,29 @@
 </style>
 
 <div class="page">
-    <!-- Topbar -->
     <div class="topbar">
         <div>
             <p class="sys-label">// Cửa hàng công nghệ</p>
             <h1 class="page-title">Danh Sách <span>Sản Phẩm</span></h1>
             <div class="meta-row">
-                <span class="meta-item">Tổng: <strong><?php echo count($products); ?></strong> mục</span>
-                <span class="meta-item">Trạng thái: <strong>Sẵn sàng</strong></span>
+                <span class="meta-item">Tổng: <strong id="totalItems">0</strong> mục</span>
+                <span class="meta-item">Trạng thái: <strong>Đã kết nối API</strong></span>
             </div>
+        </div>
+        <div>
+            <a href="<?php echo BASE_URL; ?>/Product/add" class="btn-cart-list" style="font-size: 0.8rem; padding: 0.6rem 1rem;">+ Thêm Sản Phẩm</a>
         </div>
     </div>
 
-    <!-- Toolbar -->
     <div class="toolbar">
         <div class="search-wrap">
             <span class="search-icon">⌕</span>
-            <input type="text" class="search-input" id="searchInput"
-                   placeholder="Tìm kiếm sản phẩm..." autocomplete="off">
+            <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm sản phẩm..." autocomplete="off">
         </div>
-
         <select class="sort-select" id="categoryFilter">
             <option value="all">Tất cả danh mục</option>
-            <?php if (isset($categories)): ?>
-                <?php foreach ($categories as $cat): ?>
-                    <option value="<?php echo htmlspecialchars($cat->getName(), ENT_QUOTES, 'UTF-8'); ?>">
-                        <?php echo htmlspecialchars($cat->getName(), ENT_QUOTES, 'UTF-8'); ?>
-                    </option>
-                <?php endforeach; ?>
-            <?php endif; ?>
+            <!-- Sẽ được điền bằng jQuery -->
         </select>
-
         <select class="sort-select" id="sortSelect">
             <option value="default">Sắp xếp mặc định</option>
             <option value="name-asc">Tên A → Z</option>
@@ -125,77 +115,15 @@
             <option value="price-asc">Giá thấp → cao</option>
             <option value="price-desc">Giá cao → thấp</option>
         </select>
-
-        <span class="result-count">
-            Hiển thị <strong id="visibleCount"><?php echo count($products); ?></strong> kết quả
-        </span>
-
+        <span class="result-count">Hiển thị <strong id="visibleCount">0</strong> kết quả</span>
         <div class="view-toggle">
             <button class="view-btn active" id="btnCard" title="Dạng thẻ">⊞</button>
-            <button class="view-btn"        id="btnTable" title="Dạng bảng">☰</button>
+            <button class="view-btn" id="btnTable" title="Dạng bảng">☰</button>
         </div>
     </div>
 
     <!-- ══ CARD GRID ══ -->
-    <div class="card-grid" id="cardGrid">
-        <?php if (empty($products)): ?>
-            <div class="empty-state" style="grid-column:1/-1">
-                <div class="empty-icon">[ _ ]</div>
-                <p class="empty-title">Chưa có sản phẩm nào</p>
-                <p class="empty-sub">// Quay lại sau nhé!</p>
-            </div>
-        <?php else: ?>
-            <?php foreach ($products as $p): ?>
-                <div class="product-card"
-                     data-search="<?php echo htmlspecialchars(mb_strtolower($p->getName().' '.$p->getDescription().' '.($p->getCategory() ?? ''), 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?>"
-                     data-name="<?php echo htmlspecialchars(mb_strtolower($p->getName(), 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?>"
-                     data-price="<?php echo $p->getPrice(); ?>"
-                     data-category="<?php echo htmlspecialchars($p->getCategory() ?? 'Khác', ENT_QUOTES, 'UTF-8'); ?>">
-                     
-                    <!-- Khối ảnh -->
-                    <div class="card-img-wrap">
-                        <?php 
-                            $imgSrc = $p->getImage();
-                            if ($imgSrc): 
-                                if (!filter_var($imgSrc, FILTER_VALIDATE_URL)) {
-                                    $imgSrc = ltrim($imgSrc, '/');
-                                    if (strpos($imgSrc, 'webbanhang/') === 0) {
-                                        $imgSrc = substr($imgSrc, 11);
-                                    }
-                                    $imgSrc = BASE_URL . '/' . ltrim($imgSrc, '/');
-                                }
-                        ?>
-                            <img src="<?php echo htmlspecialchars($imgSrc, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($p->getName(), ENT_QUOTES, 'UTF-8'); ?>" class="card-img">
-                        <?php else: ?>
-                            <span class="card-no-img">CHƯA CÓ ẢNH</span>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="card-content">
-                        <div style="margin-bottom: 0.4rem;">
-                            <span class="modal-tag" style="margin-bottom: 0; display: inline-block; font-size: 0.6rem; border-color: var(--accent); background: rgba(37, 99, 235, 0.08); color: var(--accent);"><?php echo $p->getCategory() ? htmlspecialchars($p->getCategory(), ENT_QUOTES, 'UTF-8') : 'Khác'; ?></span>
-                        </div>
-                        <h2 class="card-name">
-                            <a href="<?php echo BASE_URL; ?>/Product/show/<?php echo $p->getID(); ?>">
-                                <?php echo htmlspecialchars($p->getName(), ENT_QUOTES, 'UTF-8'); ?>
-                            </a>
-                        </h2>
-                        <p class="card-desc"><?php echo htmlspecialchars($p->getDescription(), ENT_QUOTES, 'UTF-8'); ?></p>
-                        <div class="card-footer">
-                            <span class="card-price"><?php echo number_format($p->getPrice(), 0, '.', ','); ?> VNĐ</span>
-                            <div class="card-actions">
-                                <?php if (SessionHelper::isAdmin()): ?>
-                                    <a href="<?php echo BASE_URL; ?>/Product/edit/<?php echo $p->getID(); ?>" class="btn-cart-list" style="color:var(--accent); border-color:var(--accent)">Sửa</a>
-                                    <a href="<?php echo BASE_URL; ?>/Product/delete/<?php echo $p->getID(); ?>" class="btn-cart-list" style="color:var(--danger); border-color:var(--danger)" onclick="return confirm('Bạn có chắc muốn xóa?');">Xóa</a>
-                                <?php endif; ?>
-                                <a href="<?php echo BASE_URL; ?>/Product/addToCart/<?php echo $p->getID(); ?>" class="btn-cart-list">+ Giỏ hàng</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
+    <div class="card-grid" id="cardGrid"></div>
 
     <!-- ══ TABLE VIEW ══ -->
     <div class="table-wrap is-hidden" id="tableWrap">
@@ -210,174 +138,219 @@
                     <th class="no-sort">Thao tác</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                <?php if (empty($products)): ?>
-                    <tr><td colspan="6">
-                        <div class="empty-state">
-                            <div class="empty-icon">[ _ ]</div>
-                            <p class="empty-title">Chưa có sản phẩm nào</p>
-                            <p class="empty-sub">// Quay lại sau nhé!</p>
-                        </div>
-                    </td></tr>
-                <?php else: ?>
-                    <?php foreach ($products as $p): ?>
-                        <tr data-search="<?php echo htmlspecialchars(mb_strtolower($p->getName().' '.$p->getDescription().' '.($p->getCategory() ?? ''), 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?>"
-                            data-name="<?php echo htmlspecialchars(mb_strtolower($p->getName(), 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?>"
-                            data-price="<?php echo $p->getPrice(); ?>"
-                            data-category="<?php echo htmlspecialchars($p->getCategory() ?? 'Khác', ENT_QUOTES, 'UTF-8'); ?>">
-                            
-                            <!-- Cột ảnh -->
-                            <td>
-                                <div class="td-img-wrap">
-                                    <?php 
-                                        $imgSrc = $p->getImage();
-                                        if ($imgSrc): 
-                                            if (!filter_var($imgSrc, FILTER_VALIDATE_URL)) {
-                                                $imgSrc = ltrim($imgSrc, '/');
-                                                if (strpos($imgSrc, 'webbanhang/') === 0) {
-                                                    $imgSrc = substr($imgSrc, 11);
-                                                }
-                                                $imgSrc = BASE_URL . '/' . ltrim($imgSrc, '/');
-                                            }
-                                    ?>
-                                        <img src="<?php echo htmlspecialchars($imgSrc, ENT_QUOTES, 'UTF-8'); ?>" class="td-img">
-                                    <?php else: ?>
-                                        <span class="td-no-img">TRỐNG</span>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-
-                            <td class="td-name">
-                                <a href="<?php echo BASE_URL; ?>/Product/show/<?php echo $p->getID(); ?>">
-                                    <?php echo htmlspecialchars($p->getName(), ENT_QUOTES, 'UTF-8'); ?>
-                                </a>
-                            </td>
-                            <td class="td-category"><span class="modal-tag" style="margin-bottom: 0; border-color: var(--accent); background: rgba(37, 99, 235, 0.08); color: var(--accent);"><?php echo $p->getCategory() ? htmlspecialchars($p->getCategory(), ENT_QUOTES, 'UTF-8') : 'Khác'; ?></span></td>
-                            <td class="td-desc"><?php echo htmlspecialchars($p->getDescription(), ENT_QUOTES, 'UTF-8'); ?></td>
-                            <td class="td-price"><?php echo number_format($p->getPrice(), 0, '.', ','); ?> VNĐ</td>
-                            <td class="td-actions">
-                                <div class="action-row">
-                                    <?php if (SessionHelper::isAdmin()): ?>
-                                        <a href="<?php echo BASE_URL; ?>/Product/edit/<?php echo $p->getID(); ?>" class="btn-cart-list" style="color:var(--accent); border-color:var(--accent)">Sửa</a>
-                                        <a href="<?php echo BASE_URL; ?>/Product/delete/<?php echo $p->getID(); ?>" class="btn-cart-list" style="color:var(--danger); border-color:var(--danger)" onclick="return confirm('Bạn có chắc muốn xóa?');">Xóa</a>
-                                    <?php endif; ?>
-                                    <a href="<?php echo BASE_URL; ?>/Product/addToCart/<?php echo $p->getID(); ?>" class="btn-cart-list">+ Giỏ hàng</a>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
 
-    <!-- Footer bar -->
     <div class="footer-bar">
         <span class="footer-note">CYBER STORE © <?php echo date('Y'); ?></span>
-        <span class="footer-note">v1.0.0</span>
+        <span class="footer-note">v1.0.0 (API Edition)</span>
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-(function () {
-    const searchInput  = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const sortSelect   = document.getElementById('sortSelect');
-    const visibleCount = document.getElementById('visibleCount');
-    const cardGrid     = document.getElementById('cardGrid');
-    const tableWrap    = document.getElementById('tableWrap');
-    const btnCard      = document.getElementById('btnCard');
-    const btnTable     = document.getElementById('btnTable');
-
-    let currentView = localStorage.getItem('pv') || 'card';
-
-    function setView(v) {
-        currentView = v;
-        localStorage.setItem('pv', v);
-        const isCard = v === 'card';
-        cardGrid.classList.toggle('is-hidden', !isCard);
-        tableWrap.classList.toggle('is-hidden', isCard);
-        btnCard.classList.toggle('active', isCard);
-        btnTable.classList.toggle('active', !isCard);
-        applyAll();
-    }
-    btnCard.addEventListener('click',  () => setView('card'));
-    btnTable.addEventListener('click', () => setView('table'));
-
-    function applyAll() {
-        const q    = searchInput.value.toLowerCase().trim();
-        const cat  = categoryFilter.value;
-        const sort = sortSelect.value;
-        const cards = [...cardGrid.querySelectorAll('.product-card')];
-        const rows  = [...tableWrap.querySelectorAll('tbody tr[data-search]')];
-
-        cards.forEach(el => {
-            const matchesSearch = q === '' || el.dataset.search.includes(q);
-            const matchesCat = cat === 'all' || el.dataset.category === cat;
-            el.classList.toggle('is-filtered', !(matchesSearch && matchesCat));
-        });
-        
-        rows.forEach(el => {
-            const matchesSearch = q === '' || el.dataset.search.includes(q);
-            const matchesCat = cat === 'all' || el.dataset.category === cat;
-            el.classList.toggle('is-filtered', !(matchesSearch && matchesCat));
-        });
-
-        if (sort !== 'default') {
-            const [key, dir] = sort.split('-');
-            const asc = dir === 'asc';
-            const cmp = (a, b) => {
-                const va = key === 'price' ? parseFloat(a.dataset.price) : a.dataset.name;
-                const vb = key === 'price' ? parseFloat(b.dataset.price) : b.dataset.name;
-                if (va < vb) return asc ? -1 : 1;
-                if (va > vb) return asc ?  1 : -1;
-                return 0;
-            };
-            cards.sort(cmp).forEach(el => cardGrid.appendChild(el));
-            const tbody = tableWrap.querySelector('tbody');
-            rows.sort(cmp).forEach(el => tbody.appendChild(el));
+$(document).ready(function() {
+    const baseUrl = '<?php echo BASE_URL; ?>';
+    
+    // Tải danh mục
+    $.ajax({
+        url: baseUrl + '/api/category',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            const catSelect = $('#categoryFilter');
+            data.forEach(function(cat) {
+                catSelect.append(`<option value="${cat.name}">${cat.name}</option>`);
+            });
         }
+    });
 
-        const total   = cards.length;
-        const visible = cards.filter(el => !el.classList.contains('is-filtered')).length;
-        visibleCount.textContent = (q || cat !== 'all' || sort !== 'default') ? visible + '/' + total : total;
+    // Tải sản phẩm
+    function loadProducts() {
+        $.ajax({
+            url: baseUrl + '/api/product',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                const cardGrid = $('#cardGrid');
+                const tableBody = $('#tableBody');
+                
+                cardGrid.empty();
+                tableBody.empty();
+                
+                $('#totalItems').text(data.length);
+                $('#visibleCount').text(data.length);
 
-        tableWrap.querySelectorAll('th[data-sort]').forEach(th => {
-            th.classList.remove('sort-asc', 'sort-desc');
-            if (sort.startsWith(th.dataset.sort)) {
-                th.classList.add(sort.endsWith('asc') ? 'sort-asc' : 'sort-desc');
+                if(data.length === 0) {
+                    cardGrid.append(`<div class="empty-state"><div class="empty-icon">[ _ ]</div><p class="empty-title">Chưa có sản phẩm nào</p><p class="empty-sub">// Quay lại sau nhé!</p></div>`);
+                    tableBody.append(`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">[ _ ]</div><p class="empty-title">Chưa có sản phẩm nào</p></div></td></tr>`);
+                    return;
+                }
+
+                data.forEach(function(product) {
+                    let imgSrc = product.image ? product.image : '';
+                    if (imgSrc && !imgSrc.startsWith('http')) {
+                        let path = imgSrc.replace(/^\/+/, '');
+                        if (path.startsWith('webbanhang/')) path = path.substring(11);
+                        imgSrc = baseUrl + '/' + path;
+                    }
+                    
+                    let categoryName = product.category_name ? product.category_name : 'Khác';
+                    let priceFormatted = Number(product.price).toLocaleString('en-US') + ' VNĐ';
+                    let searchText = (product.name + ' ' + (product.description || '') + ' ' + categoryName).toLowerCase();
+                    
+                    // Card
+                    let cardHtml = `
+                        <div class="product-card" data-search="${searchText}" data-name="${product.name.toLowerCase()}" data-price="${product.price}" data-category="${categoryName}">
+                            <div class="card-img-wrap">
+                                ${imgSrc ? `<img src="${imgSrc}" class="card-img" alt="${product.name}">` : `<span class="card-no-img">CHƯA CÓ ẢNH</span>`}
+                            </div>
+                            <div class="card-content">
+                                <div style="margin-bottom: 0.4rem;">
+                                    <span class="modal-tag" style="margin-bottom: 0; display: inline-block; font-size: 0.6rem; border-color: var(--accent); background: rgba(37, 99, 235, 0.08); color: var(--accent);">${categoryName}</span>
+                                </div>
+                                <h2 class="card-name"><a href="${baseUrl}/Product/show/${product.id}">${product.name}</a></h2>
+                                <p class="card-desc">${product.description || ''}</p>
+                                <div class="card-footer">
+                                    <span class="card-price">${priceFormatted}</span>
+                                    <div class="card-actions">
+                                        <a href="${baseUrl}/Product/edit/${product.id}" class="btn-cart-list" style="color:var(--accent); border-color:var(--accent)">Sửa</a>
+                                        <button class="btn-cart-list btn-delete" data-id="${product.id}" style="color:var(--danger); border-color:var(--danger)">Xóa</button>
+                                        <a href="${baseUrl}/Product/addToCart/${product.id}" class="btn-cart-list">+ Giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    cardGrid.append(cardHtml);
+
+                    // Table row
+                    let rowHtml = `
+                        <tr class="product-row" data-search="${searchText}" data-name="${product.name.toLowerCase()}" data-price="${product.price}" data-category="${categoryName}">
+                            <td>
+                                <div class="td-img-wrap">
+                                    ${imgSrc ? `<img src="${imgSrc}" class="td-img">` : `<span class="td-no-img">TRỐNG</span>`}
+                                </div>
+                            </td>
+                            <td class="td-name"><a href="${baseUrl}/Product/show/${product.id}">${product.name}</a></td>
+                            <td class="td-category"><span class="modal-tag" style="margin-bottom: 0; border-color: var(--accent); background: rgba(37, 99, 235, 0.08); color: var(--accent);">${categoryName}</span></td>
+                            <td class="td-desc">${product.description || ''}</td>
+                            <td class="td-price">${priceFormatted}</td>
+                            <td class="td-actions">
+                                <div class="action-row">
+                                    <a href="${baseUrl}/Product/edit/${product.id}" class="btn-cart-list" style="color:var(--accent); border-color:var(--accent)">Sửa</a>
+                                    <button class="btn-cart-list btn-delete" data-id="${product.id}" style="color:var(--danger); border-color:var(--danger)">Xóa</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(rowHtml);
+                });
+                
+                setupFiltering();
             }
         });
     }
 
-    searchInput.addEventListener('input', applyAll);
-    categoryFilter.addEventListener('change', applyAll);
-    sortSelect.addEventListener('change', applyAll);
+    loadProducts();
 
-    tableWrap.querySelectorAll('th[data-sort]').forEach(th => {
-        th.addEventListener('click', () => {
-            const col = th.dataset.sort;
-            const cur = sortSelect.value;
-            if (cur === col + '-asc') sortSelect.value = col + '-desc';
-            else if (cur === col + '-desc') sortSelect.value = 'default';
-            else sortSelect.value = col + '-asc';
-            applyAll();
-        });
+    // Xóa sản phẩm
+    $(document).on('click', '.btn-delete', function() {
+        if(confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+            const id = $(this).data('id');
+            $.ajax({
+                url: baseUrl + '/api/product/' + id,
+                method: 'DELETE',
+                success: function(res) {
+                    loadProducts();
+                },
+                error: function() {
+                    alert('Xóa thất bại');
+                }
+            });
+        }
     });
 
-    // Handle initial parameters from URL
-    const params = new URLSearchParams(window.location.search);
-    const urlQ = params.get('q');
-    const urlCat = params.get('category');
-    if (urlQ !== null) {
-        searchInput.value = urlQ;
-    }
-    if (urlCat !== null) {
-        categoryFilter.value = urlCat;
-    }
+    // Filtering logic
+    function setupFiltering() {
+        let currentView = localStorage.getItem('pv') || 'card';
+        function setView(v) {
+            currentView = v;
+            localStorage.setItem('pv', v);
+            const isCard = v === 'card';
+            $('#cardGrid').toggleClass('is-hidden', !isCard);
+            $('#tableWrap').toggleClass('is-hidden', isCard);
+            $('#btnCard').toggleClass('active', isCard);
+            $('#btnTable').toggleClass('active', !isCard);
+        }
+        
+        $('#btnCard').click(() => setView('card'));
+        $('#btnTable').click(() => setView('table'));
+        setView(currentView);
 
-    setView(currentView);
-})();
+        function applyFilters() {
+            const q = $('#searchInput').val().toLowerCase().trim();
+            const cat = $('#categoryFilter').val();
+            const sort = $('#sortSelect').val();
+            
+            let visibleCards = 0;
+            
+            $('.product-card').each(function() {
+                const el = $(this);
+                const matchesSearch = q === '' || el.data('search').includes(q);
+                const matchesCat = cat === 'all' || String(el.data('category')) === cat;
+                if (matchesSearch && matchesCat) {
+                    el.removeClass('is-filtered');
+                    visibleCards++;
+                } else {
+                    el.addClass('is-filtered');
+                }
+            });
+
+            $('.product-row').each(function() {
+                const el = $(this);
+                const matchesSearch = q === '' || el.data('search').includes(q);
+                const matchesCat = cat === 'all' || String(el.data('category')) === cat;
+                el.toggleClass('is-filtered', !(matchesSearch && matchesCat));
+            });
+            
+            $('#visibleCount').text(visibleCards);
+
+            if (sort !== 'default') {
+                const sortArr = sort.split('-');
+                const key = sortArr[0];
+                const asc = sortArr[1] === 'asc';
+                
+                const cardGrid = $('#cardGrid');
+                const cards = cardGrid.children('.product-card').get();
+                cards.sort(function(a, b) {
+                    const va = key === 'price' ? parseFloat($(a).data('price')) : $(a).data('name');
+                    const vb = key === 'price' ? parseFloat($(b).data('price')) : $(b).data('name');
+                    if (va < vb) return asc ? -1 : 1;
+                    if (va > vb) return asc ? 1 : -1;
+                    return 0;
+                });
+                $.each(cards, function(i, el) { cardGrid.append(el); });
+                
+                const tableBody = $('#tableBody');
+                const rows = tableBody.children('.product-row').get();
+                rows.sort(function(a, b) {
+                    const va = key === 'price' ? parseFloat($(a).data('price')) : $(a).data('name');
+                    const vb = key === 'price' ? parseFloat($(b).data('price')) : $(b).data('name');
+                    if (va < vb) return asc ? -1 : 1;
+                    if (va > vb) return asc ? 1 : -1;
+                    return 0;
+                });
+                $.each(rows, function(i, el) { tableBody.append(el); });
+            }
+        }
+
+        $('#searchInput').off('input').on('input', applyFilters);
+        $('#categoryFilter').off('change').on('change', applyFilters);
+        $('#sortSelect').off('change').on('change', applyFilters);
+    }
+});
 </script>
 
 <?php include 'app/views/shares/footer.php'; ?>

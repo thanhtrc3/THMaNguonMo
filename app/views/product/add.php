@@ -324,7 +324,7 @@
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="<?php echo BASE_URL; ?>/Product/save" enctype="multipart/form-data" onsubmit="return validateForm();">
+            <form id="add-product-form" method="POST" action="<?php echo BASE_URL; ?>/Product/save" enctype="multipart/form-data">
                 
                 <div class="field">
                     <label class="field-label" for="image">Ảnh sản phẩm</label>
@@ -399,6 +399,7 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     function validateForm() {
         const name  = document.getElementById('name').value.trim();
@@ -412,13 +413,61 @@
         return true;
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    $(document).ready(function() {
+        const baseUrl = '<?php echo BASE_URL; ?>';
+
+        // Tải danh mục từ API
+        $.ajax({
+            url: baseUrl + '/api/category',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                const catSelect = $('#category_id');
+                catSelect.empty().append('<option value="" disabled selected>Chọn danh mục...</option>');
+                data.forEach(function(cat) {
+                    catSelect.append(`<option value="${cat.id}">${cat.name}</option>`);
+                });
+            }
+        });
+
         const nameInput = document.getElementById('name');
         const counter   = document.getElementById('nameCounter');
         nameInput.addEventListener('input', () => {
             const len = nameInput.value.length;
             counter.textContent = len + '/100';
             counter.className = 'char-counter' + (len > 100 ? ' error' : len >= 80 ? ' warn' : '');
+        });
+
+        // Xử lý submit qua API
+        $('#add-product-form').on('submit', function(event) {
+            event.preventDefault();
+            if (!validateForm()) return;
+
+            const jsonData = {
+                name: $('#name').val().trim(),
+                description: $('#description').val().trim(),
+                price: parseFloat($('#price').val()),
+                category_id: $('#category_id').val(),
+                image: $('#image_url').val().trim() // Thuộc tính image được giữ lại
+            };
+
+            $.ajax({
+                url: baseUrl + '/api/product',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(jsonData),
+                success: function(response) {
+                    if (response.message === 'Product created successfully') {
+                        window.location.href = baseUrl + '/Product/manage';
+                    } else {
+                        alert('Thêm sản phẩm thất bại');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseText);
+                    alert('Lỗi khi thêm sản phẩm. Vui lòng thử lại.');
+                }
+            });
         });
 
         // Hiển thị tên file khi chọn ảnh

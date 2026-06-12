@@ -113,7 +113,7 @@
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="<?php echo BASE_URL; ?>/Product/update" enctype="multipart/form-data" onsubmit="return validateForm();">
+            <form id="edit-product-form" method="POST" action="<?php echo BASE_URL; ?>/Product/update" enctype="multipart/form-data">
                 <input type="hidden" name="id" value="<?php echo $product->getID(); ?>">
                 <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($product->getImage(), ENT_QUOTES, 'UTF-8'); ?>">
 
@@ -247,6 +247,7 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     function markSubImageForDeletion(id, element) {
         if (confirm('Bạn có chắc chắn muốn xóa ảnh phụ này?')) {
@@ -285,12 +286,64 @@
         return true;
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    $(document).ready(function() {
+        const baseUrl = '<?php echo BASE_URL; ?>';
+        const productId = $('input[name="id"]').val();
+
+        // Tải danh mục từ API
+        $.ajax({
+            url: baseUrl + '/api/category',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                const catSelect = $('#category_id');
+                const currentCatId = catSelect.val(); // Giữ danh mục hiện tại
+                catSelect.empty();
+                data.forEach(function(cat) {
+                    const selected = cat.id == currentCatId ? 'selected' : '';
+                    catSelect.append(`<option value="${cat.id}" ${selected}>${cat.name}</option>`);
+                });
+            }
+        });
+
         const inputs = document.querySelectorAll('.field-input, .field-textarea');
         inputs.forEach(el => {
             const orig = el.value;
             el.addEventListener('input', () => {
                 el.classList.toggle('dirty', el.value !== orig);
+            });
+        });
+
+        // Xử lý submit qua API
+        $('#edit-product-form').on('submit', function(event) {
+            event.preventDefault();
+            if (!validateForm()) return;
+
+            const jsonData = {
+                id: productId,
+                name: $('#name').val().trim(),
+                description: $('#description').val().trim(),
+                price: parseFloat($('#price').val()),
+                category_id: $('#category_id').val(),
+                image: $('#image_url').val().trim() // Thuộc tính image được giữ lại
+            };
+
+            $.ajax({
+                url: baseUrl + '/api/product/' + productId,
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(jsonData),
+                success: function(response) {
+                    if (response.message === 'Product updated successfully') {
+                        window.location.href = baseUrl + '/Product/manage';
+                    } else {
+                        alert('Cập nhật sản phẩm thất bại');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseText);
+                    alert('Lỗi khi cập nhật sản phẩm. Vui lòng thử lại.');
+                }
             });
         });
 
