@@ -14,6 +14,11 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+
+-- Dumping database structure for my_store
+CREATE DATABASE IF NOT EXISTS `my_store` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `my_store`;
+
 -- Dumping structure for table my_store.account
 CREATE TABLE IF NOT EXISTS `account` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -44,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `category` (
   `name` varchar(255) NOT NULL,
   `description` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table my_store.category: ~8 rows (approximately)
 INSERT INTO `category` (`id`, `name`, `description`) VALUES
@@ -76,25 +81,25 @@ CREATE TABLE IF NOT EXISTS `orders` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table my_store.orders: ~13 rows (approximately)
+-- Dumping data for table my_store.orders: ~17 rows (approximately)
 INSERT INTO `orders` (`id`, `name`, `phone`, `email`, `address`, `notes`, `total_amount`, `payment_method`, `status`, `shipping_method`, `shipping_fee`, `discount_code`, `discount_amount`, `created_at`) VALUES
-	(1, 'nguyen thanh hien', '123456798', NULL, 'ádasda', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-29 01:47:19'),
-	(2, 'nguyen thanh hien', '1241234', NULL, '12312', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-29 02:05:15'),
-	(3, 'nguyen thanh hien', 'ád', NULL, 'á', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-29 02:13:49'),
-	(4, 'á', 'á', NULL, 'ád', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-29 02:21:17'),
-	(5, 'ád', 'á', NULL, 'ád', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-29 02:21:53'),
-	(6, 'nguyen thanh hien', '1241234', NULL, 'ghf', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-29 03:00:56'),
-	(7, 'nguyen thanh hien', '0962836417', NULL, 'qưe', NULL, 470211274.00, 'BANK', 'pending', 'standard', 0, NULL, 0, '2026-05-29 03:23:26'),
-	(8, 'nguyen thanh hien', '0962836417', NULL, 'ád', NULL, 34990000.00, 'BANK', 'pending', 'standard', 0, NULL, 0, '2026-05-29 03:23:54'),
-	(9, 'nguyen thanh hien', '0962836417', NULL, 'f', NULL, 34990000.00, 'BANK', 'pending', 'standard', 0, NULL, 0, '2026-05-29 03:25:51'),
-	(10, 'nguyen thanh hien', '0962836417', NULL, '423', NULL, 29990000.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-29 03:30:08'),
-	(11, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', '312', 60015000.00, 'BANK', 'pending', 'express', 35000, '', 0, '2026-05-29 03:36:06'),
-	(12, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', 'ádádas', 35025000.00, 'BANK', 'pending', 'express', 35000, '', 0, '2026-05-29 03:41:19'),
-	(13, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', '', 34975000.00, 'BANK', 'pending', 'express', 35000, 'SALE50K', 50000, '2026-05-29 03:42:04'),
-	(14, 'user', '0962836417', 'thanhtrc3@gmail.com', '136, Xã Tượng Lĩnh, Huyện Kim Bảng, Tỉnh Hà Nam', 'ád', 29975000.00, 'BANK', 'pending', 'express', 35000, 'SALE50K', 50000, '2026-06-05 01:58:32'),
-	(15, 'user', '0962836417', 'thanhtrc3@gmail.com', '136, Xã Tượng Lĩnh, Huyện Kim Bảng, Tỉnh Hà Nam', 'fdg', 80036600.00, 'BANK', 'pending', 'express', 35000, '', 0, '2026-06-05 01:59:20'),
-	(16, 'admin', '0962836417', 'thanhtrc3@gmail.com', '255, Xã Tượng Lĩnh, Huyện Kim Bảng, Tỉnh Hà Nam', '', 1635032.00, 'COD', 'pending', 'express', 35000, '', 0, '2026-06-05 02:02:33'),
-	(17, 'user', '0962836417', 'thanhtrc3@gmail.com', '136, Xã Đồn Xá, Huyện Bình Lục, Tỉnh Hà Nam', '', 29990000.00, 'COD', 'pending', 'standard', 0, '', 0, '2026-06-05 02:17:58');
+	(1, 'nguyen thanh hien', '123456798', NULL, 'ádasda', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-28 18:47:19'),
+	(2, 'nguyen thanh hien', '1241234', NULL, '12312', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-28 19:05:15'),
+	(3, 'nguyen thanh hien', 'ád', NULL, 'á', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-28 19:13:49'),
+	(4, 'á', 'á', NULL, 'ád', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-28 19:21:17'),
+	(5, 'ád', 'á', NULL, 'ád', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-28 19:21:53'),
+	(6, 'nguyen thanh hien', '1241234', NULL, 'ghf', NULL, 0.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-28 20:00:56'),
+	(7, 'nguyen thanh hien', '0962836417', NULL, 'qưe', NULL, 470211274.00, 'BANK', 'pending', 'standard', 0, NULL, 0, '2026-05-28 20:23:26'),
+	(8, 'nguyen thanh hien', '0962836417', NULL, 'ád', NULL, 34990000.00, 'BANK', 'pending', 'standard', 0, NULL, 0, '2026-05-28 20:23:54'),
+	(9, 'nguyen thanh hien', '0962836417', NULL, 'f', NULL, 34990000.00, 'BANK', 'pending', 'standard', 0, NULL, 0, '2026-05-28 20:25:51'),
+	(10, 'nguyen thanh hien', '0962836417', NULL, '423', NULL, 29990000.00, 'COD', 'pending', 'standard', 0, NULL, 0, '2026-05-28 20:30:08'),
+	(11, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', '312', 60015000.00, 'BANK', 'pending', 'express', 35000, '', 0, '2026-05-28 20:36:06'),
+	(12, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', 'ádádas', 35025000.00, 'BANK', 'pending', 'express', 35000, '', 0, '2026-05-28 20:41:19'),
+	(13, 'nguyen thanh hien', '0962836417', 'thanhtrc@gmail.com', '231, Xã Đồng Trung, Huyện Thanh Thuỷ, Tỉnh Phú Thọ', '', 34975000.00, 'BANK', 'pending', 'express', 35000, 'SALE50K', 50000, '2026-05-28 20:42:04'),
+	(14, 'user', '0962836417', 'thanhtrc3@gmail.com', '136, Xã Tượng Lĩnh, Huyện Kim Bảng, Tỉnh Hà Nam', 'ád', 29975000.00, 'BANK', 'pending', 'express', 35000, 'SALE50K', 50000, '2026-06-04 18:58:32'),
+	(15, 'user', '0962836417', 'thanhtrc3@gmail.com', '136, Xã Tượng Lĩnh, Huyện Kim Bảng, Tỉnh Hà Nam', 'fdg', 80036600.00, 'BANK', 'pending', 'express', 35000, '', 0, '2026-06-04 18:59:20'),
+	(16, 'admin', '0962836417', 'thanhtrc3@gmail.com', '255, Xã Tượng Lĩnh, Huyện Kim Bảng, Tỉnh Hà Nam', '', 1635032.00, 'COD', 'pending', 'express', 35000, '', 0, '2026-06-04 19:02:33'),
+	(17, 'user', '0962836417', 'thanhtrc3@gmail.com', '136, Xã Đồn Xá, Huyện Bình Lục, Tỉnh Hà Nam', '', 29990000.00, 'COD', 'pending', 'standard', 0, '', 0, '2026-06-04 19:17:58');
 
 -- Dumping structure for table my_store.order_details
 CREATE TABLE IF NOT EXISTS `order_details` (
@@ -110,7 +115,7 @@ CREATE TABLE IF NOT EXISTS `order_details` (
   CONSTRAINT `order_details_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table my_store.order_details: ~30 rows (approximately)
+-- Dumping data for table my_store.order_details: ~34 rows (approximately)
 INSERT INTO `order_details` (`id`, `order_id`, `product_id`, `quantity`, `price`) VALUES
 	(1, 1, 3, 9, 34990000.00),
 	(2, 1, 1, 12, 29990000.00),
@@ -158,9 +163,9 @@ CREATE TABLE IF NOT EXISTS `product` (
   PRIMARY KEY (`id`),
   KEY `category_id` (`category_id`),
   CONSTRAINT `product_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table my_store.product: ~0 rows (approximately)
+-- Dumping data for table my_store.product: ~16 rows (approximately)
 INSERT INTO `product` (`id`, `name`, `description`, `price`, `image`, `category_id`) VALUES
 	(1, 'iPhone 15 Pro Max 256GBgg', 'cái gì đó\r\ng', 29990000.00, 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTMF0XJkdooDLxG1PH5w2AttiJwud0CyKlEUycuZ89pHNFmxTFkl5vwM6hbzoRJ6HDZPGS9kvwcOIyRFHrpIddqdDyMEVQcq0oHLivAuLc7m9ItK_ixYEduTPIv7to7mKGEy7cpdQ&amp;amp;amp;amp;amp;usqp=CAc', 1),
 	(2, 'iPad Air M2 11-inch Wi-Fi', 'iPad Air M2 11-inch Wi-Fi', 16000320.00, 'https://cdn11.dienmaycholon.vn/filewebdmclnew/DMCL21/Picture//Apro/Apro_product_36223/ipad-air-m3-11-inch-wifi-128gb-main-36223.png', 1),
