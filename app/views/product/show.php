@@ -393,6 +393,29 @@
 </div>
 
 <script>
+    // Kiểm tra JWT Token trước khi cho phép xem chi tiết
+    const token = localStorage.getItem('jwtToken');
+    if (!token) {
+        document.querySelector('.wrapper').style.display = 'none'; // Ẩn nội dung chính thay vì body
+        Swal.fire({
+            title: '// YÊU CẦU ĐĂNG NHẬP',
+            text: 'Vui lòng đăng nhập để xem thông tin chi tiết sản phẩm!',
+            icon: 'warning',
+            background: '#0d1117',
+            color: '#c9d1d9',
+            confirmButtonColor: '#47e8d0',
+            confirmButtonText: 'Tới trang đăng nhập',
+            allowOutsideClick: false,
+            customClass: {
+                title: 'font-mono'
+            }
+        }).then(() => {
+            window.location.href = '<?php echo BASE_URL; ?>/account/login';
+        });
+    } else {
+        document.querySelector('.wrapper').style.display = 'block';
+    }
+
     function switchMainImage(src, element) {
         const mainImg = document.querySelector('.product-img');
         if (mainImg) {

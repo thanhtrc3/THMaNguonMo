@@ -72,8 +72,8 @@
     .td-price { font-family: var(--mono); font-size: 0.82rem; color: var(--teal); font-weight: 700; white-space: nowrap; }
     .td-actions { text-align: center; } .action-row { display: flex; gap: 0.4rem; justify-content: center; }
 
-    .btn-cart-list { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.06em; color: var(--accent); background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.18); border-radius: 3px; padding: 0.32rem 0.7rem; text-decoration: none; transition: background 0.2s, border-color 0.2s, color 0.2s; white-space: nowrap; position: relative; z-index: 2; cursor: pointer; }
-    .btn-cart-list:hover { background: rgba(37,99,235,0.14); border-color: rgba(37,99,235,0.45); color: var(--accent); text-decoration: none; }
+    .btn-add-to-cart { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.05em; color: var(--accent); background: rgba(232, 255, 71, 0.06); border: 1px solid rgba(232, 255, 71, 0.18); border-radius: 3px; padding: 0.35rem 0.75rem; text-decoration: none; transition: all 0.2s; text-transform: uppercase; font-weight: 700; position: relative; z-index: 2; cursor: pointer; }
+    .btn-add-to-cart:hover { background: var(--accent); color: #0d0d0d; border-color: var(--accent); text-decoration: none; }
 
     .empty-state { padding: 5rem 2rem; text-align: center; grid-column: 1/-1; }
     .empty-icon { font-family: var(--mono); font-size: 2rem; color: #2a2a2a; margin-bottom: 1.25rem; }
@@ -95,7 +95,6 @@
             </div>
         </div>
         <div>
-            <a href="<?php echo BASE_URL; ?>/Product/add" class="btn-cart-list" style="font-size: 0.8rem; padding: 0.6rem 1rem;">+ Thêm Sản Phẩm</a>
         </div>
     </div>
 
@@ -135,7 +134,6 @@
                     <th class="no-sort">Danh mục</th>
                     <th class="no-sort">Mô tả</th>
                     <th class="price-col" data-sort="price">Đơn giá</th>
-                    <th class="no-sort">Thao tác</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -149,15 +147,42 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
     const baseUrl = '<?php echo BASE_URL; ?>';
     
+    // Kiểm tra JWT Token trước khi cho phép xem trang
+    const token = localStorage.getItem('jwtToken');
+    if (!token) {
+        document.querySelector('.page').style.display = 'none'; // Ẩn nội dung
+        Swal.fire({
+            title: '// YÊU CẦU ĐĂNG NHẬP',
+            text: 'Vui lòng đăng nhập để xem danh sách sản phẩm!',
+            icon: 'warning',
+            background: '#0d1117',
+            color: '#c9d1d9',
+            confirmButtonColor: '#47e8d0',
+            confirmButtonText: 'Tới trang đăng nhập',
+            allowOutsideClick: false,
+            customClass: {
+                title: 'font-mono'
+            }
+        }).then(() => {
+            window.location.href = '<?php echo BASE_URL; ?>/account/login';
+        });
+    } else {
+        document.querySelector('.page').style.display = 'block';
+    }
+
     // Tải danh mục
     $.ajax({
         url: baseUrl + '/api/category',
         method: 'GET',
         dataType: 'json',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
         success: function(data) {
             const catSelect = $('#categoryFilter');
             data.forEach(function(cat) {
@@ -172,6 +197,9 @@ $(document).ready(function() {
             url: baseUrl + '/api/product',
             method: 'GET',
             dataType: 'json',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
             success: function(data) {
                 const cardGrid = $('#cardGrid');
                 const tableBody = $('#tableBody');
@@ -184,7 +212,7 @@ $(document).ready(function() {
 
                 if(data.length === 0) {
                     cardGrid.append(`<div class="empty-state"><div class="empty-icon">[ _ ]</div><p class="empty-title">Chưa có sản phẩm nào</p><p class="empty-sub">// Quay lại sau nhé!</p></div>`);
-                    tableBody.append(`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">[ _ ]</div><p class="empty-title">Chưa có sản phẩm nào</p></div></td></tr>`);
+                    tableBody.append(`<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">[ _ ]</div><p class="empty-title">Chưa có sản phẩm nào</p></div></td></tr>`);
                     return;
                 }
 
@@ -215,9 +243,7 @@ $(document).ready(function() {
                                 <div class="card-footer">
                                     <span class="card-price">${priceFormatted}</span>
                                     <div class="card-actions">
-                                        <a href="${baseUrl}/Product/edit/${product.id}" class="btn-cart-list" style="color:var(--accent); border-color:var(--accent)">Sửa</a>
-                                        <button class="btn-cart-list btn-delete" data-id="${product.id}" style="color:var(--danger); border-color:var(--danger)">Xóa</button>
-                                        <a href="${baseUrl}/Product/addToCart/${product.id}" class="btn-cart-list">+ Giỏ</a>
+                                        <a href="${baseUrl}/Product/addToCart/${product.id}" class="btn-add-to-cart">+ Giỏ hàng</a>
                                     </div>
                                 </div>
                             </div>
@@ -237,12 +263,6 @@ $(document).ready(function() {
                             <td class="td-category"><span class="modal-tag" style="margin-bottom: 0; border-color: var(--accent); background: rgba(37, 99, 235, 0.08); color: var(--accent);">${categoryName}</span></td>
                             <td class="td-desc">${product.description || ''}</td>
                             <td class="td-price">${priceFormatted}</td>
-                            <td class="td-actions">
-                                <div class="action-row">
-                                    <a href="${baseUrl}/Product/edit/${product.id}" class="btn-cart-list" style="color:var(--accent); border-color:var(--accent)">Sửa</a>
-                                    <button class="btn-cart-list btn-delete" data-id="${product.id}" style="color:var(--danger); border-color:var(--danger)">Xóa</button>
-                                </div>
-                            </td>
                         </tr>
                     `;
                     tableBody.append(rowHtml);
@@ -254,23 +274,6 @@ $(document).ready(function() {
     }
 
     loadProducts();
-
-    // Xóa sản phẩm
-    $(document).on('click', '.btn-delete', function() {
-        if(confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-            const id = $(this).data('id');
-            $.ajax({
-                url: baseUrl + '/api/product/' + id,
-                method: 'DELETE',
-                success: function(res) {
-                    loadProducts();
-                },
-                error: function() {
-                    alert('Xóa thất bại');
-                }
-            });
-        }
-    });
 
     // Filtering logic
     function setupFiltering() {
@@ -349,6 +352,16 @@ $(document).ready(function() {
         $('#searchInput').off('input').on('input', applyFilters);
         $('#categoryFilter').off('change').on('change', applyFilters);
         $('#sortSelect').off('change').on('change', applyFilters);
+
+        // Lấy từ khóa tìm kiếm từ thanh Search của Header (URL query parameter)
+        const urlParams = new URLSearchParams(window.location.search);
+        const qParam = urlParams.get('q');
+        if (qParam) {
+            $('#searchInput').val(qParam);
+        }
+
+        // Chạy filter ngay lập tức lúc trang vừa tải xong dữ liệu
+        applyFilters();
     }
 });
 </script>

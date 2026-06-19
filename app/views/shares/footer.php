@@ -43,63 +43,61 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <!-- AJAX Add to Cart Script -->
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const addToCartLinks = document.querySelectorAll('a[href*="/addToCart/"]');
-        addToCartLinks.forEach(link => {
-            link.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const url = link.getAttribute('href');
-                
-                // Hiệu ứng nút đang thêm
-                const originalText = link.innerHTML;
-                const originalBg = link.style.backgroundColor;
-                const originalColor = link.style.color;
-                const originalBorder = link.style.borderColor;
-                
-                link.innerHTML = '...';
-                link.style.opacity = '0.7';
-                link.style.pointerEvents = 'none';
+    document.addEventListener('click', async (e) => {
+        const link = e.target.closest('a[href*="/addToCart/"]');
+        if (!link) return;
+        
+        e.preventDefault();
+        const url = link.getAttribute('href');
+        
+        // Hiệu ứng nút đang thêm
+        const originalText = link.innerHTML;
+        const originalBg = link.style.backgroundColor;
+        const originalColor = link.style.color;
+        const originalBorder = link.style.borderColor;
+        
+        link.innerHTML = '...';
+        link.style.opacity = '0.7';
+        link.style.pointerEvents = 'none';
 
-                try {
-                    const response = await fetch(url, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        // Cập nhật số lượng trên badge Header
-                        const badge = document.querySelector('.nav-link .badge');
-                        if (badge) {
-                            badge.textContent = data.totalItems;
-                            badge.style.transition = 'transform 0.2s';
-                            badge.style.transform = 'scale(1.5)';
-                            setTimeout(() => badge.style.transform = 'scale(1)', 200);
-                        }
-                        
-                        // Hiệu ứng thành công trên nút
-                        link.innerHTML = '✓ Đã thêm';
-                        link.style.backgroundColor = 'var(--teal, #47e8d0)';
-                        link.style.borderColor = 'var(--teal, #47e8d0)';
-                        link.style.color = '#000';
-                        link.style.opacity = '1';
-                        
-                        setTimeout(() => {
-                            link.innerHTML = originalText;
-                            link.style.backgroundColor = originalBg;
-                            link.style.borderColor = originalBorder;
-                            link.style.color = originalColor;
-                            link.style.pointerEvents = 'auto';
-                        }, 1200);
-                    }
-                } catch (err) {
-                    console.error('Lỗi khi thêm vào giỏ hàng:', err);
-                    window.location.href = url; // Fallback
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
-        });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Cập nhật số lượng trên badge Header
+                const badge = document.querySelector('.nav-link .badge');
+                if (badge) {
+                    badge.textContent = data.totalItems;
+                    badge.style.transition = 'transform 0.2s';
+                    badge.style.transform = 'scale(1.5)';
+                    setTimeout(() => badge.style.transform = 'scale(1)', 200);
+                }
+                
+                // Hiệu ứng thành công trên nút
+                link.innerHTML = '✓ Đã thêm';
+                link.style.backgroundColor = 'var(--teal, #47e8d0)';
+                link.style.borderColor = 'var(--teal, #47e8d0)';
+                link.style.color = '#000';
+                link.style.opacity = '1';
+                
+                setTimeout(() => {
+                    link.innerHTML = originalText;
+                    link.style.backgroundColor = originalBg;
+                    link.style.borderColor = originalBorder;
+                    link.style.color = originalColor;
+                    link.style.pointerEvents = 'auto';
+                }, 1200);
+            }
+        } catch (err) {
+            console.error('Lỗi khi thêm vào giỏ hàng:', err);
+            window.location.href = url; // Fallback
+        }
     });
     </script>
 </body>

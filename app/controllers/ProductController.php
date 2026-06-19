@@ -484,6 +484,7 @@ class ProductController
                 require_once('app/models/AccountModel.php');
                 $accountModel = new AccountModel($this->db);
                 $accountModel->updateProfile($_SESSION['username'], $name, $phone, $email, $addressJson);
+                $_SESSION['fullname'] = $name; // Cập nhật lại session fullname
             }
             
             $payment_method = $_POST['payment_method'] ?? 'COD';

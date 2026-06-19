@@ -206,7 +206,7 @@
             <p class="auth-subtitle">Sign in to continue to Cyber Store</p>
         </div>
 
-        <form action="<?php echo BASE_URL; ?>/account/checklogin" method="post">
+        <form id="login-form">
             <?php
             if (isset($errors) && count($errors) > 0) {
                 echo "<div class='error-box'><ul>";
@@ -244,3 +244,250 @@
 </div>
 
 <?php include 'app/views/shares/footer.php'; ?>
+
+<script>
+document.getElementById('login-form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Ngăn form tự reload
+
+    const formData = new FormData(this);
+    const jsonData = {};
+    formData.forEach((value, key) => { jsonData[key] = value; });
+
+    const baseUrl = '<?php echo BASE_URL; ?>';
+
+    fetch(baseUrl + '/account/checkLogin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.5rem;
+    }
+    .auth-subtitle {
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+
+    .form-floating {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .form-control-custom {
+        width: 100%;
+        background: rgba(13, 17, 23, 0.7);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        padding: 1rem 1.25rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+    .form-control-custom:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+        background: rgba(13, 17, 23, 0.9);
+    }
+    .form-control-custom::placeholder {
+        color: #5c646c;
+    }
+
+    .auth-btn {
+        width: 100%;
+        background: var(--accent);
+        color: #0d1117;
+        border: none;
+        border-radius: 8px;
+        padding: 0.85rem;
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 1rem;
+    }
+    .auth-btn:hover {
+        background: var(--accent-dim);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(88, 166, 255, 0.25);
+    }
+    .auth-btn:active {
+        transform: translateY(0);
+    }
+
+    .auth-footer {
+        margin-top: 2rem;
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--muted);
+    }
+    .auth-footer a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+    .auth-footer a:hover {
+        color: #79c0ff;
+        text-decoration: underline;
+    }
+
+    .social-login {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+    .social-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        color: var(--text);
+        text-decoration: none;
+        transition: all 0.2s;
+        font-size: 1.1rem;
+    }
+    .social-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 2rem 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+    }
+    .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid var(--border);
+    }
+    .divider:not(:empty)::before { margin-right: 1rem; }
+    .divider:not(:empty)::after { margin-left: 1rem; }
+    
+    .error-box {
+        background: rgba(248, 81, 73, 0.1);
+        border: 1px solid rgba(248, 81, 73, 0.3);
+        color: var(--danger);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+    }
+    .error-box ul { margin: 0; padding-left: 1.2rem; }
+</style>
+
+<div class="auth-wrapper">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 class="auth-title">Welcome Back</h2>
+            <p class="auth-subtitle">Sign in to continue to Cyber Store</p>
+        </div>
+
+        <form id="login-form">
+            <?php
+            if (isset($errors) && count($errors) > 0) {
+                echo "<div class='error-box'><ul>";
+                foreach ($errors as $err) {
+                    echo "<li>$err</li>";
+                }
+                echo "</ul></div>";
+            }
+            ?>
+
+            <div class="form-floating">
+                <input type="text" name="username" class="form-control-custom" placeholder="Tên đăng nhập" required autocomplete="username" />
+            </div>
+            
+            <div class="form-floating">
+                <input type="password" name="password" class="form-control-custom" placeholder="Mật khẩu" required autocomplete="current-password" />
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.85rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--muted); cursor: pointer;">
+                    <input type="checkbox" name="remember_me" style="accent-color: var(--accent);"> Ghi nhớ tôi
+                </label>
+                <a href="<?php echo BASE_URL; ?>/account/forgotPassword" style="color: var(--accent); text-decoration: none;">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="auth-btn">Đăng Nhập</button>
+            
+            
+
+            <div class="auth-footer">
+                Chưa có tài khoản? <a href="<?php echo BASE_URL; ?>/account/register">Đăng ký ngay</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php include 'app/views/shares/footer.php'; ?>
+
+<script>
+document.getElementById('login-form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Ngăn form tự reload
+
+    const formData = new FormData(this);
+    const jsonData = {};
+    formData.forEach((value, key) => { jsonData[key] = value; });
+
+    const baseUrl = '<?php echo BASE_URL; ?>';
+
+    fetch(baseUrl + '/account/checkLogin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.token) {
+            // Lưu token vào bộ nhớ trình duyệt
+            localStorage.setItem('jwtToken', data.token);
+            // Chuyển hướng
+            location.href = baseUrl + '/Product/list'; 
+        } else {
+            Swal.fire({
+                title: '// ĐĂNG NHẬP THẤT BẠI',
+                text: data.message || 'Sai tên người dùng hoặc mật khẩu.',
+                icon: 'error',
+                background: '#0d1117',
+                color: '#c9d1d9',
+                confirmButtonColor: '#f85149',
+                confirmButtonText: 'Thử lại',
+                customClass: {
+                    title: 'font-mono'
+                }
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            title: '// LỖI HỆ THỐNG',
+            text: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại sau!',
+            icon: 'error',
+            background: '#0d1117',
+            color: '#c9d1d9',
+            confirmButtonColor: '#f85149',
+            confirmButtonText: 'Đóng'
+        });
+        console.error('Error:', error);
+    });
+});
+</script>

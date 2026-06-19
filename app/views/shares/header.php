@@ -6,6 +6,7 @@
     <title>Cyber Store</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --bg: #0d1117;
@@ -143,7 +144,8 @@
                 <li class="nav-item">
                 <?php
                 if (SessionHelper::isLoggedIn()) {
-                    echo "<a class='nav-link' href='#' style='color: #fff !important; font-weight: 600;'>👋 " . htmlspecialchars($_SESSION['username']) . "</a>";
+                    $displayName = !empty($_SESSION['fullname']) ? $_SESSION['fullname'] : $_SESSION['username'];
+                    echo "<a class='nav-link' href='#' style='color: #fff !important; font-weight: 600;'>👋 " . htmlspecialchars($displayName) . "</a>";
                 } else {
                     echo "<a class='nav-link' href='" . BASE_URL . "/account/login'>Đăng nhập</a>";
                 }
@@ -152,7 +154,7 @@
                 
                 <?php if (SessionHelper::isLoggedIn()): ?>
                 <li class="nav-item">
-                    <a class='nav-link' href='<?php echo BASE_URL; ?>/account/logout' style="color: var(--danger) !important;">Đăng xuất</a>
+                    <a class='nav-link' href='#' onclick="logout()" style="color: var(--danger) !important;">Đăng xuất</a>
                 </li>
                 <?php else: ?>
                 <li class="nav-item">
@@ -162,4 +164,10 @@
             </ul>
         </div>
     </nav>
+    <script>
+    function logout() {
+        localStorage.removeItem('jwtToken');
+        location.href = '<?php echo BASE_URL; ?>/account/logout';
+    }
+    </script>
     <div class="container mt-4">

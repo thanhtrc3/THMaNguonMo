@@ -1,14 +1,15 @@
 <?php
 require_once('app/config/database.php');
 require_once('app/models/AccountModel.php');
-
+require_once('app/utils/JWTHandler.php');
 class AccountController {
     private $accountModel;
     private $db;
-
+    private $jwtHandler;
     public function __construct() {
         $this->db = (new Database())->getConnection();
         $this->accountModel = new AccountModel($this->db);
+        $this->jwtHandler = new JWTHandler();
     }
 
     public function register() {
@@ -74,41 +75,44 @@ class AccountController {
 
         unset($_SESSION['username']);
         unset($_SESSION['role']);
+        unset($_SESSION['fullname']);
         header('Location: ' . BASE_URL . '/Product');
         exit;
     }
 
-    public function checkLogin() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $username = $_POST['username'] ?? '';
-            $password = $_POST['password'] ?? '';
+    public function checkLogin() 
+    {
+        // Chuyển API sang trả JSON
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents("php://input"), true);
+        $username = $data['username'] ?? '';
+        $password = $data['password'] ?? '';
 
-            $account = $this->accountModel->getAccountByUsername($username);
+        $user = $this->accountModel->getAccountByUserName($username);
 
-            if ($account && password_verify($password, $account->password)) {
-                SessionHelper::start();
-                if (!isset($_SESSION['username'])) {
-                    $_SESSION['username'] = $account->username;
-                    $_SESSION['role'] = $account->role;
-                }
-                
-                // Xử lý Ghi nhớ tôi
-                if (isset($_POST['remember_me'])) {
-                    $token = bin2hex(random_bytes(32));
-                    $this->accountModel->updateRememberToken($account->username, $token);
-                    setcookie('remember_user', $token, time() + (86400 * 30), "/"); // 30 ngày
-                }
+        if ($user && password_verify($password, $user->password)) {
+            // QUAN TRỌNG: Giữ lại session PHP để không làm hỏng web hiện tại của bạn
+            SessionHelper::start();
+            $_SESSION['username'] = $user->username;
+            $_SESSION['role'] = $user->role;
+            $_SESSION['fullname'] = $user->fullname ?? $user->username;
 
-                header('Location: ' . BASE_URL . '/Product');
-                exit;
-            } else {
-                $errors = [];
-                $errors[] = $account ? "Mật khẩu không đúng!" : "Không tìm thấy tài khoản!";
-                include_once 'app/views/account/login.php';
-                exit;
-            }
+            // Tạo Token JWT
+            $token = $this->jwtHandler->encode([
+                'id' => $user->id, 
+                'username' => $user->username, 
+                'fullname' => $user->fullname ?? $user->username,
+                'role' => $user->role
+            ]);
+            
+            echo json_encode(['token' => $token, 'success' => true]);
+        } else {
+            http_response_code(401);
+            echo json_encode(['message' => 'Invalid credentials']);
         }
     }
+
+
 
     public function forgotPassword() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
